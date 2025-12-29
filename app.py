@@ -1,69 +1,35 @@
 import streamlit as st
+import google.generativeai as genai
+
+# CONFIGURE API KEY
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 st.set_page_config(page_title="AI Career Guide", page_icon="🎓")
 st.title("🎓 AI Career Learning Path Recommendation System")
 
-career_paths = {
-    "Doctor": {
-        "stream": "Science (PCB)",
-        "exams": ["NEET"],
-        "courses": ["MBBS", "MD / MS"],
-        "colleges": [
-            "AIIMS Delhi",
-            "Christian Medical College, Vellore",
-            "AFMC Pune",
-            "JIPMER Puducherry"
-        ],
-        "skills": ["Clinical skills", "Communication", "Research"]
-    },
+st.write("Type **ANY career** and get real guidance with courses and best colleges.")
 
-    "Software Developer": {
-        "stream": "Science (PCM) / Any stream",
-        "exams": ["JEE (optional)", "University Entrance"],
-        "courses": ["B.Tech (CSE)", "BCA", "MCA"],
-        "colleges": [
-            "IIT Bombay",
-            "IIT Madras",
-            "NIT Trichy",
-            "IIIT Hyderabad"
-        ],
-        "skills": ["Python", "DSA", "Web Development", "Git"]
-    },
+career = st.text_input("Enter your career goal (example: Pilot, Astronaut, Fashion Designer)")
 
-    "Teacher": {
-        "stream": "Any stream",
-        "exams": ["TET", "CTET"],
-        "courses": ["B.Ed", "M.Ed"],
-        "colleges": [
-            "Delhi University",
-            "BHU",
-            "Jamia Millia Islamia",
-            "TISS Mumbai"
-        ],
-        "skills": ["Teaching", "Communication", "Subject knowledge"]
-    }
-}
+if st.button("Get Career Guidance") and career:
+    prompt = f"""
+    You are a career guidance expert in India.
 
-career = st.selectbox("Choose your career", career_paths.keys())
+    The user wants to become a {career}.
 
-if st.button("Show Career Details"):
-    data = career_paths[career]
+    Give a clear, real, and practical answer in FULL SENTENCES covering:
+    1. Which stream to choose after 10th/12th
+    2. Entrance exams required
+    3. Courses to study
+    4. Best colleges in India
+    5. Skills required
 
-    st.subheader("📘 Required Stream")
-    st.write(data["stream"])
+    Write the answer in simple English, student-friendly language.
+    """
 
-    st.subheader("📝 Entrance Exams")
-    for exam in data["exams"]:
-        st.write("•", exam)
+    model = genai.GenerativeModel("gemini-pro")
+    response = model.generate_content(prompt)
 
-    st.subheader("🎓 Courses to Take")
-    for course in data["courses"]:
-        st.write("•", course)
+    st.subheader(f"📘 Career Guidance for {career}")
+    st.write(response.text)
 
-    st.subheader("🏫 Top Colleges in India")
-    for college in data["colleges"]:
-        st.write("•", college)
-
-    st.subheader("🛠 Skills to Learn")
-    for skill in data["skills"]:
-        st.write("•", skill)
